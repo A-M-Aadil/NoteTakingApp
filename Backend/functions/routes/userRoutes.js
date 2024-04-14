@@ -3,6 +3,7 @@ const bycrypt = require("bcrypt");
 const  userModel  = require("../models/User.js");
 const userRouter = express.Router();
 const jwt = require("jsonwebtoken");
+const transporter = require("../Config/emailConfig.js");
 
 userRouter.post("/register", async (req, res)=>{
     const {name, email, password, confirm_password} = req.body;
@@ -85,9 +86,62 @@ userRouter.post("/changepassword", async (req, res)=>{
     }
 });
 
-userRouter.get("/loggeduserdata", (req, res)=>{
+userRouter.get("/loggeduserdata", async (req, res)=>{
     res.send({"user":req.user});
+});
 
+userRouter.post("/send-password-reset-email", async (req, res)=>{
+    const {email} = req.body;
+    if (email) {
+        const user =  await userModel.findOne({ email:email });
+        
+        if (user) {
+            const secret = user._id + process.env.JWT_SECRET_KEY;
+            const token = jwt.sign({ userID: user._id }, secret, {expiresIn: "10m"});
+            const link = `http://127.0.0.1:3000/api/user/reset/${user._id}/${token}`;
+
+            // send email
+            let info = await transporter.sendMail({
+                from:process.env.EMAIL_FROM,
+                to:user.email,
+                subject:"Password Reset Link - Note Takking",
+                html:`Click <a href=${link}>HERE </a> to Reset Your Password. Link valid only 10 minutes`
+            });
+
+            res.send({"status":"success", "message":"Password Reset Email Sent.. Please Check Your Email", "info":info});
+        } else {
+            res.send({"status":"failed", "message":"Email does not exists"});
+        }
+    } else {
+        res.send({"status":"failed", "message":"Email field is required"});
+    }
+});
+
+userRouter.post("/resetpassword/:id/:token", async (req, res)=>{
+    const {password, confirm_password} = req.body;
+    const {id, token} = req.params;
+
+    const user =  await userModel.findById(id);
+    const new_secret = user._id + process.env.JWT_SECRET_KEY;
+
+    if (password && confirm_password) {
+        if (password !== confirm_password) {
+            res.send({"status":"failed", "message":"Confirm password does not matched"});
+        }else{
+            const salt = await bycrypt.genSalt(10);
+            const newhashedPassword =  await bycrypt.hash(password, salt);
+            await userModel.findByIdAndUpdate(user._id, {$set:{password:newhashedPassword}});
+
+            res.send({"status":"success", "message":"Password reset successfully"});
+        }
+    } else {
+        res.send({"status":"failed", "message":"All fields are required"});
+    }
+    try {
+        jwt.verify(token, new_secret);
+    } catch (error) {
+        res.send({"status":"failed", "message":"Invalid token"});
+    }
 });
 
 module.exports = userRouter;
