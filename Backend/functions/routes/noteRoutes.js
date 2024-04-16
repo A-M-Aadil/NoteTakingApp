@@ -2,55 +2,37 @@ const express = require("express");
 const checkUserAuth = require("../middleware/auth-middleware");
 const noteModel = require("../models/Note.js")
 const noteRouter = express.Router();
-const jwt = require("jsonwebtoken");
 
-// noteRouter.use(checkUserAuth);
-
-
-noteRouter.get("/", async(req, res)=>{
-    
-    try {
-        const data = await noteModel.find({user:req.user._id});
-        if (data) {
-            res.send({"status":"Sucess", "data":data});
-        }else{
-            res.send({"status":"failed", "message":"no data available"});
-        }
-    } catch (error) {
-        res.send({"status":"failed", "message":"unable to retrive data"});
-    }
-    
-});
 
 noteRouter.post("/create", async (req, res)=>{
     try {
-        const {title, content, user} = req.body;
-        const note = new noteModel({title:title, content:content, user:req.user._id});
+        const {title, content, user, date} = req.body;
+        const note = new noteModel({title:title, content:content, user:user, date:date});
         await note.save();
 
-        res.send({"status":"Sucess", "message":"Note created"});
+        res.send({"status":"success", "message":"Note created"});
     } catch (error) {
         res.send({"status":"failed", "message":"Unable to note create", "err":error.message});
     }
 });
 
-noteRouter.patch("/", async (req, res)=>{
-    let {id} = req.headers;
-
+noteRouter.patch("/update", async (req, res)=>{
+    let {id, title, content, date} = req.body
     try {
-        await noteModel.findByIdAndUpdate({_id:id}, req.body)
-        res.send({"status":"Sucess", "message":"Note Updated"});
+        await noteModel.findByIdAndUpdate({_id:id}, {$set:{title:title, content:content, date:date}})
+        res.send({"status":"success", "message":"Note Updated"});
     } catch (error) {
-        res.send({"status":"failed", "message":"Unable to Update", "err":error.message});
+        res.send({"status":"failed", "message":"Unable to Update"});
     }
 });
 
-noteRouter.delete("/", async (req, res)=>{
-    let {id} = req.headers;
+noteRouter.post("/delete", async (req, res)=>{
+    let {id} = req.body;
 
     try {
         await noteModel.findByIdAndDelete({_id:id});
-        res.send({"status":"Sucess", "message":"Note Deleted"});
+        console.log(id)
+        res.send({"status":"success", "message":"Note Deleted"});
     } catch (error) {
         res.send({"status":"failed", "message":"Unable to Delete", "err":error.message});
     }

@@ -44,6 +44,18 @@ body {
     @apply text-white bg-gradient-to-r from-[#00c6ff] to-[#0072ff] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center;
   }
 
+  .btn-note {
+    @apply text-white bg-gradient-to-r from-[#00c6ff] to-[#0072ff] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-20 md:w-auto px-5 py-2.5 text-center;
+  }
+
+  .btn-back {
+    @apply text-white bg-gradient-to-r from-[#717272] to-[#3a3a3a] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-20 sm:w-20 md:w-auto px-5 py-2.5 text-center;
+  }
+
+  .btn-del {
+    @apply text-white bg-gradient-to-r from-[#d34545] to-[#b90000] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-20 md:w-auto px-5 py-2.5 text-center;
+  }
+
   .header {
     @apply flex justify-between items-center sm:px-16 px-8 py-4 max-w-5xl mx-auto absolute top-0 bg-transparent z-10 right-0 left-0;
   }

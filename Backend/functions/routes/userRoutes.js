@@ -91,24 +91,27 @@ userRouter.get("/loggeduserdata", async (req, res)=>{
 });
 
 userRouter.post("/send-password-reset-email", async (req, res)=>{
-    const {email} = req.body;
+    const {email, page} = req.body;
     if (email) {
         const user =  await userModel.findOne({ email:email });
         
         if (user) {
             const secret = user._id + process.env.JWT_SECRET_KEY;
             const token = jwt.sign({ userID: user._id }, secret, {expiresIn: "10m"});
-            const link = `http://127.0.0.1:3000/api/user/reset/${user._id}/${token}`;
+            const link = `${page}/${user._id}/${token}`;
 
             // send email
-            let info = await transporter.sendMail({
+            try {
+                let info = await transporter.sendMail({
                 from:process.env.EMAIL_FROM,
                 to:user.email,
                 subject:"Password Reset Link - Note Takking",
                 html:`Click <a href=${link}>HERE </a> to Reset Your Password. Link valid only 10 minutes`
             });
-
             res.send({"status":"success", "message":"Password Reset Email Sent.. Please Check Your Email", "info":info});
+            } catch (error) {
+                res.send({"status":"failed", "message":"Sorry.. we are unable to send email"});
+            }
         } else {
             res.send({"status":"failed", "message":"Email does not exists"});
         }

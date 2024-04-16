@@ -9,6 +9,7 @@ const connection = require("./Config/dbConfig");
  const  userRoutes  = require("./routes/userRoutes.js");
 const checkUserAuth = require("./middleware/auth-middleware");
 const noteRouter = require("./routes/noteRoutes");
+const notesRouter = require("./routes/notesRoutes");
 
 admin.initializeApp({credential: admin.credential.cert(serviceAccount)});
 
@@ -19,10 +20,11 @@ app.use(express.json());
 // middleware protected route
 app.use("/api/user/changepassword", checkUserAuth);
 app.use("/api/user/loggeduserdata", checkUserAuth);
-app.use("/api/note", checkUserAuth);
+app.use("/api/notes", checkUserAuth);
 
 // Routes
 app.use("/api/user", userRoutes);
+app.use("/api/notes", notesRouter);
 app.use("/api/note", noteRouter);
 
 
@@ -38,10 +40,5 @@ app.get("/", async (req, res) => {
   
 });
 
-
-
-app.get("/new", (req, res) => {
-  res.send("firebase new working ");
-});
 
 exports.app = functions.https.onRequest(app);
