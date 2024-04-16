@@ -31,7 +31,6 @@ const ForgetPassword = () => {
 
   const handleChange = (e) =>{
     setEmail(e.target.value)
-    console.log(email)
   }
 
   const handleSubmit = async (e) => {
@@ -61,7 +60,6 @@ const ForgetPassword = () => {
             setIsSuccess(false)
             setShowAlert({show:true, message:res.data.message});
             setIsLoading(false);
-            
             setTimeout(() => {
               setShowAlert(false);
             }, [3000]);

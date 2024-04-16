@@ -103,14 +103,14 @@ userRouter.post("/send-password-reset-email", async (req, res)=>{
             // send email
             try {
                 let info = await transporter.sendMail({
-                from:process.env.EMAIL_FROM,
+                from:"best9adl@gmail.com",
                 to:user.email,
                 subject:"Password Reset Link - Note Takking",
                 html:`Click <a href=${link}>HERE </a> to Reset Your Password. Link valid only 10 minutes`
             });
             res.send({"status":"success", "message":"Password Reset Email Sent.. Please Check Your Email", "info":info});
             } catch (error) {
-                res.send({"status":"failed", "message":"Sorry.. we are unable to send email"});
+                res.send({"status":"failed", "message":error.message});
             }
         } else {
             res.send({"status":"failed", "message":"Email does not exists"});
