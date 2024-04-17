@@ -69,7 +69,7 @@ const Navbar = () => {
             }
         </nav>
 
-        <nav>
+        <nav className='md:hidden'>
         {
           menuToggle ? 
           null
