@@ -27,6 +27,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/notes", notesRouter);
 app.use("/api/note", noteRouter);
 
+// connect database
 connection;
 
 
