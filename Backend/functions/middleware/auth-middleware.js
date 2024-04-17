@@ -1,6 +1,7 @@
 const  userModel  = require("../models/User.js");
 const jwt = require("jsonwebtoken");
 
+// user auth check
 const checkUserAuth = async(req, res, next)=>{
     let token ;
     const { authorization } = req.headers;

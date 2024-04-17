@@ -14,7 +14,7 @@ const notesRouter = require("./routes/notesRoutes");
 admin.initializeApp({credential: admin.credential.cert(serviceAccount)});
 
 const app = express();
-app.use(cors());
+app.use(cors({origin:true}));
 app.use(express.json());
 
 // middleware protected route
@@ -27,18 +27,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/notes", notesRouter);
 app.use("/api/note", noteRouter);
 
-
-
-app.get("/", async (req, res) => {
-    try {
-        const conn = await connection;
-        console.log(conn);
-        res.send("firebase working and db");
-    } catch (error) {
-        console.log(error);
-    }
-  
-});
+connection;
 
 
 exports.app = functions.https.onRequest(app);

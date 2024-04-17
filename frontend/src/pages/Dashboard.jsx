@@ -4,16 +4,19 @@ import { useNavigate } from 'react-router-dom'
 import { VscAccount } from "react-icons/vsc";
 
 const Dashboard = () => {
+  // variables
   const [notes, setNotes] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const token = localStorage.getItem("authToken");
 
-
+  // check user authentication
   const checkUserAuth = async() =>{
+    // verifiy auth token
     if (token) {
-      await axios.get("http://127.0.0.1:5001/notetakingapi/us-central1/app/api/user/loggeduserdata", {headers: {"Authorization": `Bearer ${token}`}})
+      await axios.get("https://us-central1-notetakingapi.cloudfunctions.net/app/api/user/loggeduserdata", {headers: {"Authorization": `Bearer ${token}`}})
       .then((res)=>{
+        // if user not logged in then navigate sign in page
         if (!res.data.user) {
           localStorage.removeItem("authToken")
           navigate("/signin")
@@ -24,9 +27,10 @@ const Dashboard = () => {
 
   checkUserAuth()
 
+  // get all notes from database
   const getNotes = async () =>{
     setIsLoading(true)
-    await axios.get("http://127.0.0.1:5001/notetakingapi/us-central1/app/api/notes/", {headers: {"Authorization": `Bearer ${token}`}})
+    await axios.get("https://us-central1-notetakingapi.cloudfunctions.net/app/api/notes/", {headers: {"Authorization": `Bearer ${token}`}})
       .then((res)=>{
         setNotes(res.data.data)
         setIsLoading(false)
@@ -34,12 +38,12 @@ const Dashboard = () => {
     
   }
 
+  // open  user notes
   const handleNote = (id) =>{
     navigate(`/note/view/${id}`)
   }
 
   
-
   useEffect(() => {
     getNotes()
   }, [])

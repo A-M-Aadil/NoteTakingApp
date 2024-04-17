@@ -3,7 +3,7 @@ const checkUserAuth = require("../middleware/auth-middleware");
 const noteModel = require("../models/Note.js")
 const notesRouter = express.Router();
 
-
+// get all notes route
 notesRouter.get("/", async(req, res)=>{
     
     try {

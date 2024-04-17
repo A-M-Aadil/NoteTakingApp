@@ -5,14 +5,20 @@ const userRouter = express.Router();
 const jwt = require("jsonwebtoken");
 const transporter = require("../Config/emailConfig.js");
 
+// user register route
 userRouter.post("/register", async (req, res)=>{
     const {name, email, password, confirm_password} = req.body;
     const user = await userModel.findOne({email:email})
+
+    // verify user email
     if (user) {
         res.send({"status":"failed", "message":"Email alredy exists"})
     }else{
+        // verify all the fields
         if (name && email && password && confirm_password) {
+            // verify password fileds
             if (password === confirm_password) {
+                // store data
                 try {
                     const salt = await bycrypt.genSalt(10);
                     const hashedPassword =  await bycrypt.hash(password, salt);
@@ -40,11 +46,14 @@ userRouter.post("/register", async (req, res)=>{
     }
 });
 
+// user login route
 userRouter.post("/login", async (req, res)=>{
     try {
         const {email, password} = req.body;
+        // verify fields
         if (email && password) {
             const user = await userModel.findOne({email:email});
+            // verify user
             if (user != null) {
                 const isMatch = await bycrypt.compare(password, user.password);
                 if ((user.email === email) && isMatch) {
@@ -68,13 +77,16 @@ userRouter.post("/login", async (req, res)=>{
 
 });
 
-
+// change user password
 userRouter.post("/changepassword", async (req, res)=>{
     const {password, confirm_password} = req.body;
+    // verify new password fields
     if (password && confirm_password) {
+        // verify password
         if (password !== confirm_password) {
             res.send({"status":"failed", "message":"Confirm password does not matched"});
         } else {
+            // store new password
             const salt = await bycrypt.genSalt(10);
             const newhashedPassword =  await bycrypt.hash(password, salt);
             await userModel.findByIdAndUpdate(req.user._id, {$set:{password:newhashedPassword}});
@@ -86,16 +98,20 @@ userRouter.post("/changepassword", async (req, res)=>{
     }
 });
 
+// get logged in user data
 userRouter.get("/loggeduserdata", async (req, res)=>{
     res.send({"user":req.user});
 });
 
+// send user reset password email
 userRouter.post("/send-password-reset-email", async (req, res)=>{
     const {email, page} = req.body;
+    // verify email
     if (email) {
         const user =  await userModel.findOne({ email:email });
         
         if (user) {
+            // create new token and link
             const secret = user._id + process.env.JWT_SECRET_KEY;
             const token = jwt.sign({ userID: user._id }, secret, {expiresIn: "10m"});
             const link = `${page}/${user._id}/${token}`;
@@ -120,6 +136,7 @@ userRouter.post("/send-password-reset-email", async (req, res)=>{
     }
 });
 
+// user reset password
 userRouter.post("/resetpassword/:id/:token", async (req, res)=>{
     const {password, confirm_password} = req.body;
     const {id, token} = req.params;
@@ -127,10 +144,12 @@ userRouter.post("/resetpassword/:id/:token", async (req, res)=>{
     const user =  await userModel.findById(id);
     const new_secret = user._id + process.env.JWT_SECRET_KEY;
 
+    // verify user passwords
     if (password && confirm_password) {
         if (password !== confirm_password) {
             res.send({"status":"failed", "message":"Confirm password does not matched"});
         }else{
+            // store new password
             const salt = await bycrypt.genSalt(10);
             const newhashedPassword =  await bycrypt.hash(password, salt);
             await userModel.findByIdAndUpdate(user._id, {$set:{password:newhashedPassword}});

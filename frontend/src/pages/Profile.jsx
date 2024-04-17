@@ -6,6 +6,7 @@ import PasswordChecklist from "react-password-checklist"
 import { VscAccount } from "react-icons/vsc";
 
 const Profile = () => {
+    // variables
     const [form, setForm] = useState({ password: '', confirm_password: '' })
     const [user, setUser] = useState([])
     const [isLoading, setIsLoading] = useState(false)
@@ -16,9 +17,11 @@ const Profile = () => {
     const navigate = useNavigate()
     const token = localStorage.getItem("authToken");
 
+    // check user authentication
     const checkUserAuth = async() =>{
+         // verifiy auth token
         if (token) {
-        await axios.get("http://127.0.0.1:5001/notetakingapi/us-central1/app/api/user/loggeduserdata", {headers: {"Authorization": `Bearer ${token}`}})
+        await axios.get("https://us-central1-notetakingapi.cloudfunctions.net/app/user/loggeduserdata", {headers: {"Authorization": `Bearer ${token}`}})
         .then((res)=>{
             if (!res.data.user) {
             localStorage.removeItem("authToken")
@@ -30,14 +33,16 @@ const Profile = () => {
         }
     }
 
-
+    // get user inputs from form
     const handleChange = ({ target: { name, value } }) => {
         setForm({ ...form, [name]: value })
     }
 
+    // change user password funtion
     const handleChangePassword = async(e)=>{
         e.preventDefault()
         if (!validPassword) {
+            // alert
             setIsSuccess(false)
             setShowAlert({show:true, message:"Please enter valid details"})
               setTimeout(() => {
@@ -48,16 +53,17 @@ const Profile = () => {
           setIsLoading(true)
         try {
           
-            await axios.post("http://127.0.0.1:5001/notetakingapi/us-central1/app/api/user/changepassword", {
+            await axios.post("https://us-central1-notetakingapi.cloudfunctions.net/app/api/user/changepassword", {
               password: form.password,
               confirm_password: form.confirm_password,
             },
             {headers: {"Authorization": `Bearer ${token}`}}
             )
               .then((res) => {
-                console.log(res)
+                // if change password successfully then remove exists token
                 if (res.data.status === "success") {
                     localStorage.removeItem("authToken")
+                    // alert
                     setIsLoading(false)
                     navigate("/signin")
                     setIsSuccess(true)
@@ -67,6 +73,7 @@ const Profile = () => {
                         setShowAlert(false);
                     }, [3000]);
                 } else {
+                    // alert
                     setIsSuccess(false)
                     setShowAlert({show:true, message:res.data.message});
                     setIsLoading(false);
@@ -77,6 +84,7 @@ const Profile = () => {
                 }
               })
           } catch (error) {
+            // alert
             setIsLoading(false)
             setIsSuccess(false)
             setShowAlert({ show: true, message: errormessage });

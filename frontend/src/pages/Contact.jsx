@@ -3,73 +3,78 @@ import emailjs from '@emailjs/browser'
 import { motion } from 'framer-motion'
 
 const Contact = () => {
-  const [form, setForm] = useState({ name:'', email:'', message:''})
+  // variables
+  const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
+  // contact form handling function
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-    const handleSubmit = (e) =>{
-        e.preventDefault();
-        setIsLoading(true);
+    // send user messages to email using email js
+    emailjs.send(
+      import.meta.env.VITE_APP_EMAILJS_SERVICE_ID,
+      import.meta.env.VITE_APP_EMAILJS_TEMPLATE_ID,
+      {
+        from_name: form.name,
+        to_name: "Note U",
+        from_email: form.email,
+        to_email: 'ratulipra@gmail.com',
+        message: form.message
+      },
+      import.meta.env.VITE_APP_EMAILJS_PUBLIC_KEY
+    ).then(() => { 
+      // alert
+      setIsLoading(false);
+      setIsSuccess(true);
+      showAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+        setForm({ name: '', email: '', message: '' });
+      }, [3000]);
 
-        emailjs.send(
-            import.meta.env.VITE_APP_EMAILJS_SERVICE_ID,
-            import.meta.env.VITE_APP_EMAILJS_TEMPLATE_ID,
-            {
-              from_name: form.name,
-              to_name: "Note U",
-              from_email: form.email,
-              to_email: 'ratulipra@gmail.com',
-              message: form.message
-            },
-            import.meta.env.VITE_APP_EMAILJS_PUBLIC_KEY
-          ).then(()=>{
-            setIsLoading(false);
-            setIsSuccess(true);
-            showAlert(true);
-            setTimeout(() => {
-                setShowAlert(false);
-                setForm({name:'', email:'', message:''});
-            }, [3000]);
-      
-          }).catch((error)=>{
-            setShowAlert(true);
-            setIsLoading(false);setTimeout(() => {
-                setShowAlert(false);
-                console.log(error)
-                setForm({name:'', email:'', message:''});
-            }, [3000]);
-          })
-    };
+    }).catch((error) => {
+      // alert
+      setShowAlert(true);
+      setIsLoading(false); setTimeout(() => {
+        setShowAlert(false);
+        console.log(error)
+        setForm({ name: '', email: '', message: '' });
+      }, [3000]);
+    })
+  };
 
-  const handleChange = ( {target: {name, value}}) =>{
-    setForm({...form, [name]:value})
+  // get user inputs from form
+  const handleChange = ({ target: { name, value } }) => {
+    setForm({ ...form, [name]: value })
   }
 
   return (
     <>
-    { showAlert ? <div className='top-20 w-full h-full fixed flex justify-center items-start z-10'>
-            <motion.div initial={{y: -500}} animate={{y:0}} transition={{duration:"0.5"}} className={`h-[60px] ${isSuccess ? 'bg-green-500':'bg-red-600'} text-white font-semibold font-poppins text-xl flex items-center justify-center p-5 rounded-lg`}>
-                { isSuccess ? 'Message Sent Successfully 😄' : ' Message Sent Failed 😟'}
-            </motion.div>
-        </div>:null
-    }
+      {showAlert ? <div className='top-20 w-full h-full fixed flex justify-center items-start z-10'>
+        <motion.div initial={{ y: -500 }} animate={{ y: 0 }} transition={{ duration: "0.5" }} className={`h-[60px] ${isSuccess ? 'bg-green-500' : 'bg-red-600'} text-white font-semibold font-poppins text-xl flex items-center justify-center p-5 rounded-lg`}>
+          {isSuccess ? 'Message Sent Successfully 😄' : ' Message Sent Failed 😟'}
+        </motion.div>
+      </div> : null
+      }
 
-    <section className='relative flex lg:flex-row flex-col max-container'>
-      
+      <section className='relative flex lg:flex-row flex-col max-container'>
+
         <div className='flex-1 min-w-[50%] flex flex-col'>
-          <h1 className='head-text blue-gradient_text'>Contact</h1>   
+          <h1 className='head-text blue-gradient_text'>Contact</h1>
 
           <form onSubmit={handleSubmit} className='w-full flex flex-col gap-7 mt-8'>
             <label className="text-white/40 font-semibold">
               Name
-              <input type="text" name='name' className='input' placeholder='John' required value={form.name} onChange={handleChange}/>
+              <input type="text" name='name' className='input' placeholder='John' required value={form.name} onChange={handleChange} />
             </label>
 
             <label className="text-white/40 font-semibold">
               email
-              <input type="email" name='email' className='input' placeholder='John@email.com' required value={form.email} onChange={handleChange}/>
+              <input type="email" name='email' className='input' placeholder='John@email.com' required value={form.email} onChange={handleChange} />
             </label>
 
             <label className="text-white/40 font-semibold">
@@ -77,7 +82,7 @@ const Contact = () => {
               <textarea name='message' rows={4} className='textarea' placeholder='Message' required value={form.message} onChange={handleChange}></textarea>
             </label>
 
-            <button type='submit' disabled={isLoading} className="btn">{isLoading ? 'Sending..' : 'Send' }</button>
+            <button type='submit' disabled={isLoading} className="btn">{isLoading ? 'Sending..' : 'Send'}</button>
           </form>
         </div>
 
@@ -90,7 +95,7 @@ const Contact = () => {
             </div>
           </div>
         </div>
-    </section>
+      </section>
     </>
   )
 }

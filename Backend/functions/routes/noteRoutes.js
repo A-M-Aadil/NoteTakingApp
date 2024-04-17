@@ -1,9 +1,8 @@
 const express = require("express");
-const checkUserAuth = require("../middleware/auth-middleware");
 const noteModel = require("../models/Note.js")
 const noteRouter = express.Router();
 
-
+// note create route
 noteRouter.post("/create", async (req, res)=>{
     try {
         const {title, content, user, date} = req.body;
@@ -16,6 +15,7 @@ noteRouter.post("/create", async (req, res)=>{
     }
 });
 
+// note update route
 noteRouter.patch("/update", async (req, res)=>{
     let {id, title, content, date} = req.body
     try {
@@ -26,6 +26,7 @@ noteRouter.patch("/update", async (req, res)=>{
     }
 });
 
+// note delete route
 noteRouter.post("/delete", async (req, res)=>{
     let {id} = req.body;
 

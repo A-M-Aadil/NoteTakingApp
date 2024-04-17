@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
 const ForgetPassword = () => {
+  // variables
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [sendEmail, setSendEmail] = useState(false)
@@ -14,9 +15,11 @@ const ForgetPassword = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [showAlert, setShowAlert] = useState({show:false, message:""});
 
+  // check user authentication
   const checkUserAuth = async() =>{
+    // verifiy auth token
     if (token) {
-      await axios.get("http://127.0.0.1:5001/notetakingapi/us-central1/app/api/user/loggeduserdata", {headers: {"Authorization": `Bearer ${token}`}})
+      await axios.get("https://us-central1-notetakingapi.cloudfunctions.net/app/api/user/loggeduserdata", {headers: {"Authorization": `Bearer ${token}`}})
       .then((res)=>{
         if (res.data.user) {
           navigate("/app")
@@ -29,18 +32,22 @@ const ForgetPassword = () => {
 
   checkUserAuth()
 
+  // get user input
   const handleChange = (e) =>{
     setEmail(e.target.value)
   }
 
+  // handing reset password email send
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
+
+    // send reaset password link or Url
     const location = window.location.href.split('forgetpassword')
     const restUrl = location[0] + "resetpassword"
     try {
-
-      await axios.post("http://127.0.0.1:5001/notetakingapi/us-central1/app/api/user/send-password-reset-email", {
+      // send data
+      await axios.post("https://us-central1-notetakingapi.cloudfunctions.net/app/api/user/send-password-reset-email", {
         email: email,
         page: restUrl
       },
@@ -48,6 +55,7 @@ const ForgetPassword = () => {
       )
         .then((res) => {
           if (res.data.status === "success") {
+            // alert
             setSendEmail(true)
             setIsLoading(false)
             setIsSuccess(true)
@@ -57,6 +65,7 @@ const ForgetPassword = () => {
                 setShowAlert(false);
               }, [3000]);
           } else {
+            // alert
             setIsSuccess(false)
             setShowAlert({show:true, message:res.data.message});
             setIsLoading(false);
@@ -66,6 +75,7 @@ const ForgetPassword = () => {
             }
         })
     } catch (error) {
+      // alert
       setIsSuccess(false)
             setShowAlert({show:true, message:error.message});
             setIsLoading(false);
